@@ -11,30 +11,94 @@ using UnityEngine;
 
 public class Pathmaker : MonoBehaviour {
 
-// STEP 2: ============================================================================================
-// translate the pseudocode below
+    // STEP 2: ============================================================================================
+    // translate the pseudocode below
 
-//	DECLARE CLASS MEMBER VARIABLES:
-//	Declare a private integer called counter that starts at 0; 		// counter var will track how many floor tiles I've instantiated
-//	Declare a public Transform called floorPrefab, assign the prefab in inspector;
-//	Declare a public Transform called pathmakerSpherePrefab, assign the prefab in inspector; 		// you'll have to make a "pathmakerSphere" prefab later
+    //	DECLARE CLASS MEMBER VARIABLES:
+    public CameraControl cam;
+    private int counter = 0; 		// counter var will track how many floor tiles I've instantiated
+    public static int worldCounter = 0;
+    public Transform floorPrefab;
+    public Transform minaretPrefab;
+    public Transform pyramidPrefab;
+    public Transform doublePrefab;
+    public Transform pathMakerSphere; 		// you'll have to make a "pathmakerSphere" prefab later
+    private float turnChance;
+    private float branchChance;
 
+    void Start()
+    {
+        turnChance = Random.Range(.05f, .35f);
+        branchChance = (Random.Range(.94f, .999f)+Random.Range(.98f, 1f))/2;
+    }
 
 	void Update () {
-//		If counter is less than 50, then:
-//		Generate a random number from 0.0f to 1.0f;
-//		If random number is less than 0.25f, then rotate myself 90 degrees;
-//			... Else if number is 0.25f-0.5f, then rotate myself -90 degrees;
-//			... Else if number is 0.99f-1.0f, then instantiate a pathmakerSpherePrefab clone at my current position;
-//		// end elseIf
 
-//		Instantiate a floorPrefab clone at current position;
+        if (counter < 100 && worldCounter < 500)
+        {
+            float randomNum = Random.Range(0f, 1f);
+            /*if(randomNum < .25f) //Original
+            {
+                transform.Rotate(0, 90, 0);
+            }
+            else if (randomNum >= .25f && randomNum < 0.5f)
+            {
+                transform.Rotate(0, -90, 0);
+            }
+            else if (randomNum >= .99f)
+            {
+                Instantiate(pathMakerSphere, transform.position, transform.rotation);
+            }*/
 
-//		Move forward ("forward" in local space, relative to the direction I'm facing) by 5 units;
-//			Increment counter;
-//			Else:
-//			Destroy my game object; 		// self destruct if I've made enough tiles already
+            /*if (randomNum < .11f) //Hallways
+            {
+                transform.Rotate(0, 90, 0);
+            }
+            else if (randomNum >= .11f && randomNum < 0.22f)
+            {
+                transform.Rotate(0, -90, 0);
+            }
+            else if (randomNum >= .9825f)
+            {
+                Instantiate(pathMakerSphere, transform.position, transform.rotation);
+            }*/
+
+            if (randomNum < turnChance) //Random
+            {
+                transform.Rotate(0, 90, 0);
+                cam.addTile(Instantiate(doublePrefab, transform.position, Quaternion.identity));
+            }
+            else if (randomNum >= turnChance && randomNum < turnChance * 2)
+            {
+                transform.Rotate(0, -90, 0);
+                cam.addTile(Instantiate(doublePrefab, transform.position, Quaternion.identity));
+            }
+            else if (randomNum >= .99f)
+            {
+                Instantiate(pathMakerSphere, transform.position, transform.rotation);
+                cam.addTile(Instantiate(minaretPrefab, transform.position, Quaternion.identity));
+            }
+            else
+            {
+                cam.addTile(Instantiate(floorPrefab, transform.position, Quaternion.identity));
+            }
+
+            transform.Translate(0, 0, 5f);
+            counter++;
+            worldCounter++;
+        }
+        else
+        {
+            cam.addTile(Instantiate(pyramidPrefab, transform.position, Quaternion.identity));
+            Destroy(this);
+        }
+        
 	}
+
+    public void reset()
+    {
+        worldCounter = 0;
+    }
 
 } // end of class scope
 
